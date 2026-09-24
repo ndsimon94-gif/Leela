@@ -455,3 +455,7 @@ a.row:hover h3 { color: var(--accent); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Subtitle under the home headline */
+.subtitle { margin-top: 1.5rem; font-size: var(--step-3); font-weight: 300; font-style: italic; color: var(--accent); }
+.footer-grid p + p { margin-top: .75rem; }

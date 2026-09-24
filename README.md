@@ -38,3 +38,7 @@ Other sample content to review:
 - **Coordinates and elevation** (40.22° N, 105.27° W, about 5,400 ft) are for Lyons itself. Update them to the property's.
 - **Newsletter forms** only show a thank-you message for now. Connect them to a mailing service (Buttondown, Mailchimp, etc.) when one is chosen.
 - **Photography**: the Stay page has quiet placeholder frames captioned "Photograph to come". Replace the `<svg>` inside each `.figure__frame` with an `<img>`.
+
+## Hosting
+
+The site is served by GitHub Pages from the `main` branch (Settings → Pages → Deploy from a branch → `main`, `/ (root)`). The empty `.nojekyll` file tells Pages to serve the files as they are. Every push to `main` updates the live site within a minute or two.
