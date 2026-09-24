@@ -2,7 +2,6 @@
 (function () {
   "use strict";
 
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   /* Leela keeps Mountain Time; fall back to the visitor's clock if Intl can't. */
@@ -30,22 +29,7 @@
     });
   }
 
-  /* ---- Hero: one word at a time catches the light ---- */
-  var field = document.querySelector("[data-cycle]");
-  if (field && !reduceMotion) {
-    var words = field.querySelectorAll("span:not(.sep)");
-    var i = 0;
-    if (words.length) {
-      words[0].classList.add("is-lit");
-      setInterval(function () {
-        words[i].classList.remove("is-lit");
-        i = (i + 1 + Math.floor(Math.random() * 3)) % words.length;
-        words[i].classList.add("is-lit");
-      }, 2200);
-    }
-  }
-
-  /* ---- Today at Leela ---- */
+  /* ---- A day at Leela: today's name, rest days, and the current hour ---- */
   var today = document.getElementById("today");
   if (today) {
     var now = leelaNow();
@@ -62,9 +46,8 @@
     if (restNote) restNote.hidden = !isRest;
     var log = isRest ? rest : open;
     if (log) {
-      var items = log.querySelectorAll("li[data-t]");
       var current = null;
-      items.forEach(function (li) {
+      log.querySelectorAll("li[data-t]").forEach(function (li) {
         var t = li.getAttribute("data-t").split(":");
         if (parseInt(t[0], 10) * 60 + parseInt(t[1], 10) <= now.minutes) current = li;
       });
@@ -74,55 +57,11 @@
 
   /* ---- Week strip ---- */
   document.querySelectorAll(".week").forEach(function (week) {
-    var d = leelaNow().day;
-    var idx = (d + 6) % 7; // strip starts on Monday
-    var cell = week.children[idx];
+    var cell = week.children[(leelaNow().day + 6) % 7]; // strip starts on Monday
     if (cell) {
       cell.classList.add("is-today");
       cell.setAttribute("aria-current", "date");
     }
-  });
-
-  /* ---- Stars ---- */
-  function seeded(seed) {
-    return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-  }
-  document.querySelectorAll(".rhythm__stars").forEach(function (box) {
-    var rnd = seeded(7);
-    for (var s = 0; s < 46; s++) {
-      var star = document.createElement("i");
-      star.style.left = (rnd() * 100).toFixed(2) + "%";
-      star.style.top = (rnd() * 100).toFixed(2) + "%";
-      star.style.opacity = (0.25 + rnd() * 0.7).toFixed(2);
-      if (rnd() > 0.88) { star.style.width = "3px"; star.style.height = "3px"; }
-      box.appendChild(star);
-    }
-  });
-
-  document.querySelectorAll("canvas[data-stars]").forEach(function (canvas) {
-    var ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    var rnd = seeded(42);
-    var stars = [];
-    for (var s = 0; s < 220; s++) stars.push({ x: rnd(), y: rnd(), r: rnd() * 1.2 + 0.2, p: rnd() * Math.PI * 2 });
-    function draw(t) {
-      var dpr = window.devicePixelRatio || 1;
-      var w = canvas.clientWidth, h = canvas.clientHeight;
-      if (canvas.width !== w * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, w, h);
-      var color = getComputedStyle(canvas).color || "#f3e9b8";
-      ctx.fillStyle = color;
-      stars.forEach(function (st) {
-        ctx.globalAlpha = reduceMotion ? 0.7 : 0.35 + 0.5 * (0.5 + 0.5 * Math.sin(st.p + t / 1400));
-        ctx.beginPath();
-        ctx.arc(st.x * w, st.y * h, st.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      if (!reduceMotion) requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-    window.addEventListener("resize", function () { canvas.width = 0; if (reduceMotion) draw(0); });
   });
 
   /* ---- Calendar filters ---- */
@@ -150,17 +89,17 @@
     });
   }
 
-  /* ---- Forms (not yet wired to a mailing service) ---- */
+  /* ---- Forms (not yet connected to a mailing service) ---- */
   document.querySelectorAll("form[data-signup]").forEach(function (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var msg = form.querySelector(".form-msg");
       var input = form.querySelector("input[type=email]");
       if (!input || !input.value || !input.checkValidity()) {
-        if (msg) msg.textContent = "That address doesn't look quite right. Check it and try again.";
+        if (msg) msg.textContent = "Please enter a valid email address.";
         return;
       }
-      if (msg) msg.textContent = "Thank you. The next letter from the land will find you.";
+      if (msg) msg.textContent = "Thank you. You'll receive the next seasonal letter.";
       form.reset();
     });
   });
